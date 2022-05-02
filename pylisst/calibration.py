@@ -1,9 +1,10 @@
 import numpy as np
-
+import xarray as xr
 
 # TODO convert into yaml
 class calib:
     def __init__(self):
+        self.number_rings = 32
         self.SN = 1660
         self.depth_slope = 0.01
         self.depth_offset = 0
@@ -29,8 +30,16 @@ class calib:
              1.33556567670000, 1.20908922660000, 1.07815400160000, 1.76207523180000, 1.55085634300000,
              2.53041187530000, 2.56385922160000, 3.57572117650000, 3.96319866420000, 5.01664107560000,
              5.77011140700000, 7.01385046680000])
+        self.dcal = xr.DataArray(self.dcal, dims=["number"],
+                            coords=dict(number=range(self.number_rings)),
+                            attrs=dict(description="LISST-VSF calibration coef. for forward angles",
+                                       units="-"),)
 
         # De - vignetting factors
         self.dvig = np.array(
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1.02101205238326,
              1.20581086480367, 1.43697017345649, 1.69141875258289, 2.00024365577338, 2.44936150814052])
+        self.dvig = xr.DataArray(self.dvig, dims=["number"],
+                            coords=dict(number=range(self.number_rings)),
+                            attrs=dict(description="LISST-VSF vignetting factors for forward angles",
+                                       units="-"))
