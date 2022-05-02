@@ -28,6 +28,7 @@ class process:
 
     def auxdata(self):
         # correct and save auxiliary data
+        scat =self.scat
         self.timestamp = scat.time
         self.tempC = scat.tempC * calfact.temp_slope + calfact.temp_offset
         self.depth = scat.depth * calfact.depth_slope + calfact.depth_offset
@@ -40,7 +41,7 @@ class process:
         # TODO check data filtering/smoothing/flagging ... method
         self.zscr_clean = zscr[abs(zscr - np.median(zscr)) < np.std(zscr)]
         self.zscat_r = np.median(self.zscr_clean)
-        self.sampl_t = self.scat.pow_trns / (self.zscat_r * scat.pow_lref)
+        self.sampl_t = self.scat.pow_trns / (self.zscat_r * self.scat.pow_lref)
         self.ringc = - np.log(self.sampl_t) / (1e-2 * self.cuvette_length)
 
     def get_angles(self):
@@ -237,8 +238,8 @@ class process:
         light_on_rings2 = cscat2 * self.calfact.Watt_per_count_on_rings
 
         # calculate incident laser power from LREF
-        laser_incident_power1 = scat.LREF[:, 0] * self.calfact.Watt_per_count_laser_ref
-        laser_incident_power2 = scat.LREF[:, 1] * self.calfact.Watt_per_count_laser_ref
+        laser_incident_power1 = self.scat.LREF[:, 0] * self.calfact.Watt_per_count_laser_ref
+        laser_incident_power2 = self.scat.LREF[:, 1] * self.calfact.Watt_per_count_laser_ref
 
         # calculate forward scattering; factor 6 due to arcs
         beam_bf = 6 * 0.5 * (np.sum(light_on_rings1 / laser_incident_power1) \
@@ -337,34 +338,12 @@ class process:
         alpha_bd135 = self.pp.sel(angles=ang_ref2) / self.pr.sel(angles=ang_ref2)
         self.alpha = np.nanmedian([alpha_ac45, alpha_ac135, alpha_bd45, alpha_bd135])
 
+    def full_process(self):
+        self.auxdata()
+        self.get_attenuation()
+        self.get_angles()
+        self.process_large_angles()
+        self.process_forward_angles()
+        self.get_matrix_terms()
+        self.merge_angles()
 
-dir = '/DATA/projet/gernez/hablab/lisst_vsf'
-file_ = 'V1111510.VSF'
-# file_ = 'V1101425.VSF'
-filez_ = 'Z1110820.VSF'
-file = os.path.join(dir, file_)
-filez = os.path.join(dir, filez_)
-scat = driver(file)
-scat.reader()
-zsc = driver(filez)
-zsc.reader()
-p = process(scat, zsc, calfact)
-p.auxdata()
-p.get_attenuation()
-p.get_angles()
-p.process_large_angles()
-p.process_forward_angles()
-p.get_matrix_terms()
-
-b = p
-fig, axs = plt.subplots(ncols=2, nrows=2, figsize=(12, 9), sharex=True, sharey=True)
-fig.subplots_adjust(bottom=0.1, top=0.975, left=0.1, right=0.975,
-                    hspace=0.1, wspace=0.1)
-axs = axs.ravel()
-b.rp.plot(hue='set', color='black', alpha=0.3, lw=1, add_legend=False, ax=axs[0])
-b.rr.plot(hue='set', color='black', alpha=0.3, lw=1, add_legend=False, ax=axs[1])
-b.pp.plot(hue='set', color='black', alpha=0.3, lw=1, add_legend=False, ax=axs[2])
-b.pr.plot(hue='set', color='black', alpha=0.3, lw=1, add_legend=False, ax=axs[3])
-
-axs[3].semilogy()
-plt.savefig(os.path.join("fig", file_) + '.png', dpi=300)
