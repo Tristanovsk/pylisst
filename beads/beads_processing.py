@@ -5,6 +5,8 @@ from scipy.interpolate import interp1d
 import xarray as xr
 import datetime as dt
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+
 rc = {"font.family": "serif",
       "mathtext.fontset": "stix"}
 plt.rcParams.update(rc)
@@ -23,6 +25,20 @@ calfact = calib()
 
 dir = '/DATA/projet/gernez/hablab/lisst_vsf'
 file_ = 'V1111510.VSF'
+name = 'Beads_3mic'
+rn_med =1.5
+file_ = 'V1111544.VSF'
+name = 'Beads_1mic'
+rn_med = 0.5
+
+file_ = 'V1111613.VSF'
+name = 'Beads_dot7mic'
+rn_med = 0.702/2
+
+file_ = 'V1111644.VSF'
+name = 'Beads_dot3mic'
+rn_med = 0.303/2
+
 #file_ = 'V1101425.VSF'
 filez_ = 'Z1110820.VSF'
 
@@ -84,7 +100,6 @@ wl_medium = wl / nMedium
 dpnm = mueller.x * wl_medium / np.pi
 dp = dpnm / 1000
 
-rn_med = 1.5
 CV = 0.01
 sig = rn_med * CV
 rv_med = psd.rnmed2rvmed(rn_med, sig)
@@ -126,4 +141,9 @@ axs[2].set_title('$P_{22}$')
 for i in range(3):
     axs[i].set_xlabel('$Scattering\ angle\ (deg)$')
 axs[0].semilogy()
-plt.savefig(os.path.join("fig", file_) + '_mueller_mat_mie_check.png', dpi=300)
+handles, labels = axs[0].get_legend_handles_labels()
+patch = Line2D([0],[0],color='black', label='LISST-VSF data')
+handles.append(patch)
+axs[0].legend(handles=handles, loc='upper right')
+
+plt.savefig(os.path.join("fig", name) + '_mueller_mat_mie_check.png', dpi=300)
