@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from pylisst.process import process
 from pylisst.driver import driver
 from pylisst.calibration import calib
+plt.ioff()
 calfact = calib()
 
 
@@ -47,4 +48,6 @@ b.p12.plot(hue='set', color='black', alpha=0.3, lw=1, add_legend=False, ax=axs[1
 b.p22.plot(hue='set', color='black', alpha=0.3, lw=1, add_legend=False, ax=axs[2])
 
 axs[0].semilogy()
+for i in range(3):
+    axs[i].minorticks_on()
 plt.savefig(os.path.join("fig", file_) + '_mueller_mat.png', dpi=300)

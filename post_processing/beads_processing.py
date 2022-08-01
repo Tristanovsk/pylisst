@@ -27,17 +27,17 @@ dir = '/DATA/projet/gernez/hablab/lisst_vsf'
 file_ = 'V1111510.VSF'
 name = 'Beads_3mic'
 rn_med =1.5
-file_ = 'V1111544.VSF'
-name = 'Beads_1mic'
-rn_med = 0.5
+# file_ = 'V1111544.VSF'
+# name = 'Beads_1mic'
+# rn_med = 0.5
 
-file_ = 'V1111613.VSF'
-name = 'Beads_dot7mic'
-rn_med = 0.702/2
+# file_ = 'V1111613.VSF'
+# name = 'Beads_dot7mic'
+# rn_med = 0.702/2
 
-file_ = 'V1111644.VSF'
-name = 'Beads_dot3mic'
-rn_med = 0.303/2
+# file_ = 'V1111644.VSF'
+# name = 'Beads_dot3mic'
+# rn_med = 0.303/2
 
 #file_ = 'V1101425.VSF'
 filez_ = 'Z1110820.VSF'
