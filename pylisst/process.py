@@ -189,6 +189,7 @@ class process:
         geom_corr = np.polyval(self.calfact.geometric_cal_coeff, self.angles)
         geom_corr = xr.DataArray(geom_corr, dims='angles',
                                  coords={'angles': self.angles})
+        self.geom_corr = geom_corr
         self.rp = rp * geom_corr
         self.rr = rr * geom_corr
         self.pp = pp * geom_corr

@@ -66,6 +66,9 @@ psd = psd.psd()
 # of size parameters x = np.pi * diameter / wavelength (unitless)
 # -------------------------------------
 wl = 515
+
+
+
 nMedium = 1.3199+6878/wl**2-1.132e9/wl**4+1.11e14/wl**6
 wl_medium=wl/nMedium
 npolystyrene = 1.60
@@ -96,7 +99,7 @@ m = complex(mueller.nr, mueller.ni)
 
 m_vacuum = m * nMedium
 wl_medium = wl / nMedium
-
+scale =(wl_medium*1e-3) ** 2 / np.pi
 dpnm = mueller.x * wl_medium / np.pi
 dp = dpnm / 1000
 
@@ -132,7 +135,7 @@ b.P11.plot(hue='set', color='black', alpha=0.3, lw=1, add_legend=False, ax=axs[0
 b.p12.plot(hue='set', color='black', alpha=0.3, lw=1, add_legend=False, ax=axs[1])
 b.p22.plot(hue='set', color='black', alpha=0.3, lw=1, add_legend=False, ax=axs[2])
 
-axs[0].plot(ang,S11/norm,c='red',label='Mie')
+axs[0].plot(ang,(S11/norm),c='red',label='Mie')
 axs[1].plot(ang,S12,c='red')
 axs[2].hlines(1,0,180,colors='red')
 axs[0].set_title('$P_{11}$')
