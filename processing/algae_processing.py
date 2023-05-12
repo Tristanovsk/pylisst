@@ -27,7 +27,7 @@ opj = os.path.join
 calfact = calib()
 
 mie = False
-dir = '/DATA/projet/gernez/hablab/lisst_vsf'
+dir = '/DATA/projet/gernez/hablab/lisst_vsf/raw'
 
 file_ = 'V1101629.VSF'
 name = "PRY_C3"
