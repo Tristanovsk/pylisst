@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 from pylisst.driver import driver
 from pylisst.calibration import calib
-
+from pylisst import __version__
 calfact = calib()
 
 
@@ -19,7 +19,7 @@ class process:
         self.calfact = calfact
         self.alpha = alpha
         self.proc_date = dt.datetime.utcnow()
-        self.version = "v1.0"
+        self.version = __version__
         self.cuvette_length = 15  # in cm
         self.eyeball_length = 10  # in cm
         self.water_refactive_index = 1.334
@@ -145,15 +145,17 @@ class process:
         # attenuation correction along beam + from SV to eyeball
         beam_c1 = self.beam_c.isel(config=0)
         att_factors1 = np.exp(-beam_c1 * paths)
-        # Scale signal to account for attenuation along path and laser power
-        rp = scat.rp / att_factors1
+
         # Subtract background scattering
-        rp = rp - self.zsc_rp
+        rp = scat.rp - self.zsc_rp
+        # Scale signal to account for attenuation along path and laser power
+        rp = rp / att_factors1
         # Correct for scattering volume lengthening with view angle
         rp = rp * np.sin(angles_rad)
 
-        rr = scat.rr / att_factors1
-        rr = rr - self.zsc_rr
+
+        rr = scat.rr - self.zsc_rr
+        rr = rr / att_factors1
         rr = rr * np.sin(angles_rad)
 
         # -----------------------------------------------------------------
@@ -163,12 +165,14 @@ class process:
         beam_c2 = self.beam_c.isel(config=1)
         att_factors2 = np.exp(-beam_c2 * paths)
 
-        pp = scat.pp / att_factors2
-        pp = pp - self.zsc_pp
+
+        pp = scat.pp - self.zsc_pp
+        pp = pp / att_factors2
         pp = pp * np.sin(angles_rad)
 
-        pr = scat.pr / att_factors2
-        pr = pr - self.zsc_pr
+
+        pr = scat.pr - self.zsc_pr
+        pr = pr / att_factors2
         pr = pr * np.sin(angles_rad)
 
         # Correct change in laser power

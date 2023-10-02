@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 
 __package__ = 'PyLisst'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 setup(
     name=__package__,
@@ -27,8 +27,8 @@ setup(
     install_requires=['numpy','scipy','pandas','xarray','lmfit',
                       'matplotlib','datetime'],
 
-    entry_points={
-          'console_scripts': [
-              'pylisst = TODO'
-          ]}
+    # entry_points={
+    #       'console_scripts': [
+    #           'pylisst = TODO'
+    #       ]}
 )
