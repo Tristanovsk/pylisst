@@ -1,35 +1,33 @@
 # PyLisst
-## Scientific code to process and visualize LISST-VSF data
+Scientific code to process and visualize LISST-VSF data.
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-### Prerequisites
-
-What things you need to install the software and how to install them
-
-```
-python3 -m pip install --user --upgrade setuptools
-```
-
 ### Installing
 
-First, clone [the repository](https://github.com/Tristanovsk/invRrs#) and execute the following command in the
-local copy:
+Clone [the repository](https://github.com/Tristanovsk/pylisst) and install the package from the local copy:
 
 ```
-python3 setup.py install 
+git clone https://github.com/Tristanovsk/pylisst.git
+cd pylisst
+python3 -m pip install .
 ```
 
-This will install the package into the system's Python path.
-If you have not the administrator rights, you can install the package as follows:
+For a development (editable) install:
 
 ```
-python3 setup.py install --user
+python3 -m pip install -e .
 ```
 
-If another destination directory is preferred, it can be set by
+### Documentation
+
+Build the documentation locally with:
 
 ```
-python3 setup.py install --prefix=<where-to-install>
+python3 -m pip install -e .
+python3 -m pip install -r docs/requirements.txt
+cd docs
+make html
 ```

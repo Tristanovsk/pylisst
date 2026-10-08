@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PyLisst"
+dynamic = ["version"]
+description = "Scientific code to process LISST-VSF measurements"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "T. Harmel", email = "tristan.harmel@gmail.com" }]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "xarray",
+    "lmfit",
+    "matplotlib",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.urls]
+Homepage = "https://github.com/Tristanovsk/pylisst"
+Documentation = "https://pylisst.readthedocs.io"
+
+[tool.setuptools.dynamic]
+version = { attr = "pylisst.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["pylisst*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.nc", "*.txt", "*.csv", "*.dat"]

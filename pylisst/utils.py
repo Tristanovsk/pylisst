@@ -1,3 +1,10 @@
+"""
+Plotting utilities.
+
+Importing this module sets the default matplotlib style (serif fonts,
+color cycle) used for the figures of the package.
+"""
+
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -14,10 +21,36 @@ plt.rcParams["font.serif"] = ["Times New Roman"] + plt.rcParams["font.serif"]
 
 
 class plot:
+    """
+    Helpers for plotting volume scattering functions.
+    """
+
     def __init__(self):
         pass
 
     def semilog(self, ax, size=2):
+        """
+        Split an axis into a log-scale part (0.08-5 deg) and a linear part (5-170 deg).
+
+        Convenient to display the VSF over both near-forward and large
+        scattering angles. Both parts share a logarithmic y-axis.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            Axis to split; it becomes the left (log-scale x-axis) part.
+        size : float or str, optional
+            Width of the appended right-hand (linear) axis, as accepted by
+            :meth:`mpl_toolkits.axes_grid1.axes_divider.AxesDivider.append_axes`.
+            Default is 2 (inches).
+
+        Returns
+        -------
+        ax : matplotlib.axes.Axes
+            Left axis with logarithmic x-scale.
+        axlin : matplotlib.axes.Axes
+            Right axis with linear x-scale.
+        """
         ax.set_xlim((0.08, 5))
         divider = make_axes_locatable(ax)
         axlin = divider.append_axes("right", size=size, pad=0, sharey=ax)

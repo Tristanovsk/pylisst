@@ -1,0 +1,9 @@
+# Doc
+ipython
+sphinx>=7
+sphinx-book-theme
+sphinx-copybutton
+sphinxcontrib-mermaid
+myst-nb
+myst-parser
+linkify-it-py

@@ -1,3 +1,9 @@
+"""
+Example script: process one LISST-VSF file and plot signals and Mueller matrix terms.
+
+.. warning:: This module runs processing at import time and uses hard-coded
+   data paths; it should not be imported (exclude it from API documentation).
+"""
 import os
 import numpy as np
 from scipy.interpolate import interp1d
