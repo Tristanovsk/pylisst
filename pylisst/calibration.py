@@ -1,8 +1,55 @@
+"""
+Calibration factors of the LISST-VSF instrument.
+"""
+
 import numpy as np
 import xarray as xr
 
 # TODO convert into yaml
 class calib:
+    """
+    Container of the LISST-VSF calibration factors.
+
+    Values are currently hard-coded for instrument SN 1660.
+
+    Attributes
+    ----------
+    number_rings : int
+        Number of ring detectors (near-forward angles).
+    SN : int
+        Instrument serial number.
+    depth_slope, depth_offset : float
+        Linear conversion of depth counts into meters.
+    temp_slope, temp_offset : float
+        Linear conversion of temperature counts into degrees Celsius.
+    bat_slope, bat_offset : float
+        Linear conversion of battery counts into volts.
+    angle_offset : float
+        Offset (degrees) between the eyeball encoder index and the
+        actual scattering angle.
+    Watt_per_count_on_rings : float
+        Radiometric calibration of the ring detectors (W/count).
+    Watt_per_count_laser_ref : float
+        Radiometric calibration of the laser reference detector (W/count),
+        including a 1.04 factor for Fresnel loss.
+    ND : float
+        Transmission correction of the neutral density filter in front of the rings.
+    laser_power_change_factor : float
+        Ratio between high and low laser power used for the first
+        eyeball angles (first 40 angles).
+    HWPlate_transmission : float
+        Transmission of the half-wave plate used for the second
+        (parallel polarization) eyeball rotation.
+    geometric_cal_coeff : numpy.ndarray
+        Polynomial coefficients (highest degree first, see
+        :func:`numpy.polyval`) of the eyeball geometric correction
+        as a function of scattering angle (degrees).
+    dcal : xarray.DataArray
+        Ring area calibration coefficients, dimension ``number``.
+    dvig : xarray.DataArray
+        Ring de-vignetting factors, dimension ``number``.
+    """
+
     def __init__(self):
         self.number_rings = 32
         self.SN = 1660

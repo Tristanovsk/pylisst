@@ -65,19 +65,19 @@ psd = psd.psd()
 # Generate mueller matrices for a series
 # of size parameters x = np.pi * diameter / wavelength (unitless)
 # -------------------------------------
-wl = 515
 
 
 
-nMedium = 1.3199+6878/wl**2-1.132e9/wl**4+1.11e14/wl**6
-wl_medium=wl/nMedium
-npolystyrene = 1.60
-m = npolystyrene / nMedium - 0.000j
+wl = 670
+nMedium = 1.3199 + 6878 / wl ** 2 - 1.132e9 / wl ** 4 + 1.11e14 / wl ** 6
+wl_medium = wl / nMedium
+npolystyrene = {515:1.60,670:1.583}
+m = npolystyrene[wl] / nMedium - 0.000j
+
+ofile = 'data/mueller_mie_' + format(m,'1.3f') + '_t3600.nc'
 
 theta = np.linspace(0, np.pi, 3600)
 x = np.logspace(np.log10(1), 2, 1001)
-ofile = 'data/mueller_mie_' + format(m,'1.3f') + '_t3600.nc'
-
 if os.path.exists(ofile):
     mueller = xr.open_dataset(ofile)
 else:
