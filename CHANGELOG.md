@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and `quickstart_lisst_200x` (LISST-200X reader); `beads_process_basic` added to the
   tutorials.
 - Workflow diagram and per-notebook descriptions on the Advanced tutorials page.
+- "Theoretical background" documentation page: inherent optical properties,
+  scattering (Mueller) matrix, Lorenz-Mie theory (Mie coefficients, amplitude
+  functions, matrix elements, efficiencies, Rayleigh limit) and integration
+  over size distributions, after Mie (1908), Mishchenko and Travis (2008) and
+  Sumlin et al. (2018).
+- Equations of the processing chain (attenuation, eyeball corrections, PMT
+  gain, Mueller matrix terms, ring VSF, merging) in the documentation and in
+  the docstrings of `pylisst.process` and `pylisst.lisst_x.post_process`.
 - This changelog.
 
 ### Changed

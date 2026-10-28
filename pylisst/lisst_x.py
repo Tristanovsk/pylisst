@@ -288,8 +288,24 @@ def lisst_200X(datafile):
 
 
 def post_process():
-    """
+    r"""
     Example comparing LISST-200X VSF with Mie computations for polystyrene beads.
+
+    Mie scattering matrices are computed (or read from cache) for size
+    parameters :math:`x = \pi d\, n_w / \lambda` and the relative refractive
+    index :math:`m = n_{polystyrene} / n_w`, integrated over a log-normal size
+    distribution :math:`n(d)` and normalized into a :math:`4\pi`-normalized
+    phase function:
+
+    .. math::
+
+       \bar{S}_{11}(\theta) = \int S_{11}(\theta; m, x(d))\, n(d)\, dd, \qquad
+       4\pi\tilde{\beta}_{Mie}(\theta) = \frac{\bar{S}_{11}(\theta)}
+       {\frac{1}{2}\int_0^{\pi} \bar{S}_{11}(\theta) \sin\theta \, d\theta}
+
+    which is compared, up to an arbitrary scaling (the LISST-200X VSF is
+    uncalibrated), with the VSF normalized by the beam attenuation,
+    :math:`2\pi\,\beta(\theta)/c`. See :doc:`/theory`.
 
     .. note:: Script-like function with hard-coded paths; requires the
        external ``mie_perso`` package.

@@ -9,6 +9,7 @@ PyLisst documentation
    :caption: Contents:
 
    installation
+   theory
    processing_chain
 
 

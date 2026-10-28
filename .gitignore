@@ -149,3 +149,19 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+# Local data, figures and working files (not versioned)
+/data/
+/fig/
+/matlab/
+/lisst_vsf_attenuation.csv
+/notebook/Untitled.ipynb
+/notebook/beads_post_processing.ipynb
+/notebook/beads_process.pdf
+/notebook/beads_process_bu*.ipynb
+/notebook/beads_process_lisst_200x.ipynb
+/notebook/post_processing_export_netcdf.ipynb
+/notebook/post_processing_size_chl_poc.ipynb
+/notebook/post_processing_vsf.ipynb
+/notebook/sample_process_into_pdf.ipynb
+/notebook/test.csv

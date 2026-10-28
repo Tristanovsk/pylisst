@@ -136,12 +136,19 @@ class process:
         self.pmt_gain = scat.pmt_gain
 
     def get_attenuation(self):
-        """
+        r"""
         Compute the beam attenuation coefficient.
 
         The ratio of transmitted laser power to laser reference of the sample
         is normalized by the same ratio for clean water (median per PMT gain),
-        which compensates for laser drift. Sets attributes ``tau``
+        which compensates for laser drift:
+
+        .. math::
+
+           \tau = \frac{LP / LREF}{LP_w / LREF_w}, \qquad
+           c = -\frac{\ln \tau}{L}
+
+        with :math:`L` the ``cuvette_length``. Sets attributes ``tau``
         (transmittance) and ``beam_c`` (attenuation coefficient, m-1) with
         dimensions ``(set, config)``, as well as ``ringc``, the "classic"
         attenuation from the ring transmission detector.
@@ -521,12 +528,22 @@ class process:
         self.pr = self.pr * self.alpha
 
     def process_forward_angles(self):
-        """
+        r"""
         Process ring detector data into the near-forward VSF.
 
         Ring counts are corrected for attenuation, background, ring area,
         vignetting and neutral density filter, then converted to VSF using
-        the ring solid angles in water and the incident laser power.
+        the ring solid angles in water and the incident laser power:
+
+        .. math::
+
+           \beta(\bar{\theta}_i) = \frac{P_i}{L\, \Delta\Omega_i\, P_0}, \qquad
+           \Delta\Omega_i = \frac{2\pi}{6}\left(\cos\theta_i - \cos\theta_{i+1}\right)
+
+        with :math:`P_i` the corrected power on ring :math:`i`, :math:`P_0` the
+        incident laser power, :math:`L` the ``cuvette_length`` and
+        :math:`\theta_i` the ring edge angles refracted into water (each ring
+        covers one sixth of a circle).
         Low-signal (< 25 counts) and negative values are masked.
 
         Sets attributes ``ring_angles_deg`` (degrees), ``vsf1``/``vsf2``
@@ -592,12 +609,19 @@ class process:
 
     def merge_angles(self,
                      custom_factor=1):
-        """
+        r"""
         Merge ring and eyeball data into a VSF over the full angular range.
 
         Eyeball P11 is scaled to the ring VSF using the median ratio over the
         overlapping angles ``ang_overlap`` (Sequoia uses 15-16 deg, but here
-        ring data are not extrapolated). Eyeball data are truncated to
+        ring data are not extrapolated):
+
+        .. math::
+
+           s = f_{custom}\, \operatorname{median}_{\theta \in \Theta_{ov}}
+           \left[\frac{\beta_{ring}(\theta)}{P_{11}(\theta)}\right]
+
+        Eyeball data are truncated to
         [``eyeball_angle_min``, ``eyeball_angle_max``], and the 48 deg angle is
         dropped and re-interpolated.
 
@@ -631,21 +655,47 @@ class process:
         self.P11 = self.P11.where(full_angles != 48, drop=True).interp(angles=full_angles)
 
     def compute_scattering_coef(self):
-        """
+        r"""
         Compute the scattering coefficient.
 
-        .. warning:: Not implemented yet (placeholder).
+        Intended to integrate the VSF over all directions:
+
+        .. math::
+
+           b = 2\pi \int_0^{\pi} \beta(\theta) \sin\theta \, d\theta
+
+        .. warning:: Not implemented yet (placeholder): the current return
+           value is the trapezoidal integral of ``p11`` along its last axis
+           with unit spacing, without the :math:`2\pi\sin\theta` weighting.
         """
         # TODO
         return np.trapz(self.p11)
 
     def get_matrix_terms(self):
-        """
+        r"""
         Compute Mueller matrix terms P11, P12 and P22 from eyeball signals.
 
         P11 is the average of the four signals, P12 and P22 are normalized by
-        P11. P22 is the mean of two estimates obtained from each laser
-        polarization; values within 40-50 and 130-140 degrees are masked.
+        P11:
+
+        .. math::
+
+           P_{11} = \frac{1}{4}(r_p + p_p + r_r + p_r), \qquad
+           \frac{P_{12}}{P_{11}} = \frac{(p_p - r_p) + (p_r - r_r)}{4 P_{11}}
+
+        P22 is retrieved from each laser polarization,
+
+        .. math::
+
+           \left(\frac{P_{22}}{P_{11}}\right)_{1} &=
+           \frac{2P_{11} - \left[r_p(1 + \cos 2\theta) + p_p(1 - \cos 2\theta)\right]}
+                {2 \cos^2 2\theta \; P_{11}} \\
+           \left(\frac{P_{22}}{P_{11}}\right)_{2} &=
+           \frac{2P_{11} - \left[r_r(1 - \cos 2\theta) + p_r(1 + \cos 2\theta)\right]}
+                {2 \cos^2 2\theta \; P_{11}}
+
+        and P22 is the mean of both estimates. As :math:`\cos 2\theta` vanishes at
+        45 and 135 degrees, values within 40-50 and 130-140 degrees are masked.
 
         Sets attributes ``p11``, ``p12`` and ``p22``.
         """
@@ -679,12 +729,19 @@ class process:
         self.p22 = 0.5 * (p22_1 + p22_2)
 
     def get_alpha(self):
-        """
+        r"""
         Estimate ``alpha``, the relative gain of the two photomultipliers.
 
         Alpha is not known a priori and is determined from data as the median
-        ratio of ``p`` to ``r`` detector signals at 45 and 135 degrees, for
-        both laser polarizations. Sets attribute ``alpha``.
+        ratio of the signals of the two detectors at 45 and 135 degrees, for
+        both laser polarizations:
+
+        .. math::
+
+           \alpha = \operatorname{median}\left(\frac{r_p}{r_r}, \frac{p_p}{p_r}\right)
+           _{\theta = 45^\circ, 135^\circ}
+
+        Sets attribute ``alpha``.
         """
         ang_ref1 = 45
         ang_ref2 = 135
