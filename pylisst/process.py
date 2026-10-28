@@ -3,6 +3,7 @@ Processing of LISST-VSF data into volume scattering function and Mueller matrix 
 """
 
 import os
+import copy
 import numpy as np
 from scipy.interpolate import interp1d
 
@@ -76,9 +77,9 @@ class process:
     """
 
     def __init__(self, scat, zsc, calfact, alpha=None):
-        self.scat = scat
-        self.zsc = zsc
         self.calfact = calfact
+        self.scat = self.correct_half_wave_plate(scat)
+        self.zsc = self.correct_half_wave_plate(zsc)
         self.alpha = alpha
         self.proc_date = dt.datetime.utcnow()
         self.version = __version__
@@ -90,6 +91,34 @@ class process:
         self.ang_overlap = np.linspace(14, 15, 10)
         # angle to drop and reinterpolate due to eyeball design
         self.drop_eyeball_angle= 48
+
+    def correct_half_wave_plate(self, data):
+        """
+        Correct raw measurements for the reduction in laser power caused by
+        the half-wave plate.
+
+        The second laser reference ``LREF[:, 1]`` and the eyeball signals
+        ``rp`` and ``rr`` are multiplied by ``calfact.HWPlate_transmission``,
+        once, as in the Sequoia processing. The correction is applied to a
+        shallow copy, so the input driver object is left unchanged.
+
+        Parameters
+        ----------
+        data : pylisst.driver.driver
+            Sample or background measurement.
+
+        Returns
+        -------
+        pylisst.driver.driver
+            Corrected copy of ``data``.
+        """
+        HWPlate_transmission = self.calfact.HWPlate_transmission
+        data = copy.copy(data)
+        data.LREF = data.LREF.copy()
+        data.LREF[:, 1] = data.LREF[:, 1] * HWPlate_transmission
+        data.rp = data.rp * HWPlate_transmission
+        data.rr = data.rr * HWPlate_transmission
+        return data
 
     def auxdata(self):
         """
@@ -132,11 +161,6 @@ class process:
         # -----------------------------------------------------------------
         zsc = self.zsc
         scat = self.scat
-        HWPlate_transmission = self.calfact.HWPlate_transmission
-
-        # Correct raw measurements for the reduction in laser power
-        # caused by the 1/2 wave plate
-        zsc.LREF[:, 1] = zsc.LREF[:, 1] * HWPlate_transmission
 
         self.zsc_LP = zsc.LP.groupby('pmt').median()
         self.zsc_LREF = zsc.LREF.groupby('pmt').median()
@@ -205,17 +229,17 @@ class process:
         """
         Correct eyeball signals for background, laser power and attenuation.
 
-        Steps:
+        Steps (the half-wave plate correction is applied beforehand, see
+        :meth:`correct_half_wave_plate`):
 
-        1. correct for half-wave plate transmission;
-        2. subtract the clean-water background (median per PMT gain,
+        1. subtract the clean-water background (median per PMT gain,
            scaled by the laser reference ratio);
-        3. compute ``tau`` and ``beam_c`` and correct for attenuation along the
+        2. compute ``tau`` and ``beam_c`` and correct for attenuation along the
            beam and from the sample volume to the eyeball;
-        4. correct for scattering volume lengthening (``sin(angle)``);
-        5. correct for the laser power change over the first 40 angles;
-        6. apply the geometric correction ``geom_corr``;
-        7. scale ``r`` detector signals by the PMT relative gain ``alpha``
+        3. correct for scattering volume lengthening (``sin(angle)``);
+        4. correct for the laser power change over the first 40 angles;
+        5. apply the geometric correction ``geom_corr``;
+        6. scale ``r`` detector signals by the PMT relative gain ``alpha``
            (estimated with :meth:`get_alpha` if not provided).
 
         Sets attributes ``rp``, ``rr``, ``pp`` and ``pr``.
@@ -223,17 +247,7 @@ class process:
         zsc = self.zsc
         scat = self.scat
         calfact = self.calfact
-        HWPlate_transmission = self.calfact.HWPlate_transmission
         angles_rad = np.radians(self.angles)
-
-        # Correct raw measurements for the reduction in laser power 
-        # caused by the 1/2 wave plate
-        zsc.LREF[:, 1] = zsc.LREF[:, 1] * HWPlate_transmission
-        scat.LREF[:, 1] = scat.LREF[:, 1] * HWPlate_transmission
-        scat.rp = scat.rp * HWPlate_transmission
-        scat.rr = scat.rr * HWPlate_transmission
-        zsc.rp = zsc.rp * HWPlate_transmission
-        zsc.rr = zsc.rr * HWPlate_transmission
 
         # Find number of PMT gain values in background file (usually 10)
         zsc_pmt_values = np.unique(zsc.pmt_gain)
@@ -270,7 +284,7 @@ class process:
         #                       ^
         #                 Sample Volume
         # -----------------------------------------------------------------
-        paths = self.eyeball_length - 0.02 * np.arctan(angles_rad) \
+        paths = self.eyeball_length - 0.02 / np.tan(angles_rad) \
                 + 0.02 / np.sin(angles_rad)
         # convert in meter
         paths = xr.DataArray(paths, dims='angles',
@@ -375,17 +389,7 @@ class process:
         zsc = self.zsc
         scat = self.scat
         calfact = self.calfact
-        HWPlate_transmission = self.calfact.HWPlate_transmission
         angles_rad = np.radians(self.angles)
-
-        # Correct raw measurements for the reduction in laser power
-        # caused by the 1/2 wave plate
-        zsc.LREF[:, 1] = zsc.LREF[:, 1] * HWPlate_transmission
-        scat.LREF[:, 1] = scat.LREF[:, 1] * HWPlate_transmission
-        scat.rp = scat.rp * HWPlate_transmission
-        scat.rr = scat.rr * HWPlate_transmission
-        zsc.rp = zsc.rp * HWPlate_transmission
-        zsc.rr = zsc.rr * HWPlate_transmission
 
         # Find number of PMT gain values in background file (usually 10)
         zsc_pmt_values = np.unique(zsc.pmt_gain)
@@ -422,7 +426,7 @@ class process:
         #                       ^
         #                 Sample Volume
         # -----------------------------------------------------------------
-        paths = self.eyeball_length - 0.02 * np.arctan(angles_rad) \
+        paths = self.eyeball_length - 0.02 / np.tan(angles_rad) \
                 + 0.02 / np.sin(angles_rad)
         # convert in meter
         paths = xr.DataArray(paths, dims='angles',
@@ -551,7 +555,7 @@ class process:
         cscat1 = scat1 * self.calfact.dcal * self.calfact.dvig * self.calfact.ND
 
         # ring area correction, vignetting correction, ND filter transm. corr.
-        scat2 = self.scat.rings1 / self.tau.isel(config=1)
+        scat2 = self.scat.rings2 / self.tau.isel(config=1)
         scat2 = scat2 - self.zsc_rings2 * self.scale_factor.isel(config=1)
         cscat2 = scat2 * self.calfact.dcal * self.calfact.dvig * self.calfact.ND
 
@@ -664,15 +668,15 @@ class process:
         # Two different estimates of P22
         # p22_1=(2*p11+(e+f))./(1+cos(4*repmat(p,ns,1)*pi/180))./p11
         # p22_2=(2*p11+(g+h))./(1+cos(4*repmat(p,ns,1)*pi/180))./p11
-        p22_1 = ((2 * p11 - (e + f)) / (2 * cos2phi) ** 2) / p11
-        p22_2 = ((2 * p11 - (g + h)) / (2 * cos2phi) ** 2) / p11
+        p22_1 = ((2 * p11 - (e + f)) / (2 * cos2phi ** 2)) / p11
+        p22_2 = ((2 * p11 - (g + h)) / (2 * cos2phi ** 2)) / p11
         # remove corrupted data
         mask = ~((self.angles >= 40) & (self.angles <= 50) | (self.angles >= 130) & (self.angles <= 140))
         p22_1 = p22_1.where(mask)
         p22_2 = p22_2.where(mask)
         self.p11 = p11
         self.p12 = p12
-        self.p22 = (p22_1 + p22_2)
+        self.p22 = 0.5 * (p22_1 + p22_2)
 
     def get_alpha(self):
         """

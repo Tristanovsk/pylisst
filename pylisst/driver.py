@@ -252,7 +252,7 @@ class driver:
                                           coords=dict(set=range(self.nsets), config=range(2)))
         self.rings1 = self.xarray_converter(self.rings1, dims=["set", "number"],
                                             coords=dict(set=range(self.nsets), number=range(32)))
-        self.rings2 = self.xarray_converter(self.rings1, dims=["set", "number"],
+        self.rings2 = self.xarray_converter(self.rings2, dims=["set", "number"],
                                             coords=dict(set=range(self.nsets), number=range(32)))
         self.qc_saturated = self.xarray_converter(self.mask_saturated(), dims=["set", "angles"],
                                                   coords=dict(set=range(self.nsets), angles=self.angles))
